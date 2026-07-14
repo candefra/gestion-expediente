@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Expediente</title>
+</head>
+<body>
+
+<h2>Expediente</h2>
+
+<table border="1">
+    <tr>
+        <td>Número</td>
+        <td th:text="${expediente.numeroTramite}"></td>
+    </tr>
+
+    <tr>
+        <td>Carátula</td>
+        <td th:text="${expediente.caratula}"></td>
+    </tr>
+
+    <tr>
+        <td>Estado</td>
+        <td th:text="${expediente.condicion}"></td>
+    </tr>
+
+    <tr>
+        <td>Responsable</td>
+        <td th:text="${expediente.empleadoAsignado != null ? expediente.empleadoAsignado.nombre : 'Sin asignar'}"></td>
+    </tr>
+</table>
+
+<br>
+
+<button>Consultar</button>
+
+<button>Responder</button>
+
+<button>Reasignar</button>
+
+<button onclick="history.back()">Salir</button>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+package com.deptoeconomico.expedientes.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.deptoeconomico.expedientes.model.Empleado;
+import com.deptoeconomico.expedientes.model.Expediente;
+import com.deptoeconomico.expedientes.repository.EmpleadoRepository;
+import com.deptoeconomico.expedientes.repository.ExpedienteRepository;
+
+@Service
+public class ExpedienteService {
+
+    private final ExpedienteRepository expedienteRepository;
+    private final EmpleadoRepository empleadoRepository;
+
+    public ExpedienteService(ExpedienteRepository expedienteRepository,
+                              EmpleadoRepository empleadoRepository) {
+        this.expedienteRepository = expedienteRepository;
+        this.empleadoRepository = empleadoRepository;
+    }
+
+    public List<Expediente> listarTodos() {
+        return expedienteRepository.findAll();
+    }
+
+    /** Expedientes que tiene actualmente un empleado puntual. */
+    public List<Expediente> listarPorEmpleado(Long empleadoId) {
+        Empleado empleado = empleadoRepository.findById(empleadoId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el empleado con id " + empleadoId));
+        return expedienteRepository.findByEmpleadoAsignado(empleado);
+    }
+
+    /** Expedientes que llegaron pero todavia no se le asignaron a nadie. */
+    public List<Expediente> listarSinAsignar() {
+        return expedienteRepository.findByEmpleadoAsignadoIsNull();
+    }
+
+    public Expediente buscarPorNumero(String numeroTramite) {
+        return expedienteRepository.findById(numeroTramite)
+                .orElseThrow(() ->
+                    new IllegalArgumentException("No existe el expediente " + numeroTramite));
+    }
+
+    /**
+     * Asigna (o reasigna) un expediente a un empleado.
+     * Como solo guardamos el estado actual, esto simplemente pisa
+     * el empleado anterior con el nuevo.
+     */
+    @Transactional
+    public Expediente asignarEmpleado(String numeroTramite, Long empleadoId) {
+        Expediente expediente = expedienteRepository.findById(numeroTramite)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el expediente " + numeroTramite));
+        Empleado empleado = empleadoRepository.findById(empleadoId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el empleado con id " + empleadoId));
+
+        expediente.setEmpleadoAsignado(empleado);
+        return expedienteRepository.save(expediente);
+    }
+    
+
+}
