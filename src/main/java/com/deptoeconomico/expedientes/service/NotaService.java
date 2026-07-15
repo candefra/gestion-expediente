@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -25,7 +26,8 @@ import com.deptoeconomico.expedientes.repository.NotaRepository;
 @Service
 public class NotaService {
 
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+   private static final DateTimeFormatter FORMATO_FECHA =
+            DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "AR"));
 
     // Medidas tomadas del modelo real (EjemploNota.docx), convertidas a puntos
     private static final float ANCHO_PAGINA = PDRectangle.A4.getWidth();   // 595.28pt
@@ -70,6 +72,19 @@ public class NotaService {
         nota.setEstado(estado);
         return notaRepository.save(nota);
     }
+    
+    private void escribirDerecha(PDPageContentStream cs,
+            String texto,
+            float y,
+            PDType1Font fuente,
+            float tamanio) throws IOException {
+
+float anchoTexto = fuente.getStringWidth(texto) / 1000 * tamanio;
+
+float x = ANCHO_PAGINA - MARGEN_DER - anchoTexto;
+
+escribirTexto(cs, texto, x, y, fuente, tamanio);
+}
 
     public byte[] generarPdf(Nota nota) throws IOException {
         Expediente expediente = nota.getExpediente();
@@ -90,17 +105,34 @@ public class NotaService {
 
             float y = logoY - ALTO_LINEA_ENCABEZADO * 2;
 
-            // --- Título: NOTA / PROVIDENCIA N° x/ATER (centrado, negrita, subrayado) ---
-            y = escribirCentradoSubrayado(cs, nota.getTituloDocumento(), y, FUENTE_NEGRITA, 11);
+         // --- Título ---
+            escribirDerecha(cs,
+                    nota.getTituloDocumento(),
+                    y,
+                    FUENTE_NEGRITA,
+                    11);
+
             y -= ALTO_LINEA_ENCABEZADO * 1.5f;
 
-            // --- Bloque Ref./Ciudad,fecha (alineado a la derecha) ---
-            float xBloqueDerecho = MARGEN_IZQ + ANCHO_UTIL * 0.5f;
-            escribirTexto(cs, "Ref.: Expediente N° " + expediente.getNumeroTramite(), xBloqueDerecho, y, FUENTE_NEGRITA, 10);
+            // --- Referencia ---
+            escribirDerecha(cs,
+                    "Ref.: Expediente N° " + expediente.getNumeroTramite(),
+                    y,
+                    FUENTE_NEGRITA,
+                    10);
+
             y -= ALTO_LINEA_ENCABEZADO;
-            escribirTexto(cs, "PARANÁ, " + nota.getFecha().format(FORMATO_FECHA), xBloqueDerecho, y, FUENTE_NEGRITA, 10);
+
+            // --- Fecha ---
+            escribirDerecha(cs,
+                    "PARANÁ, " + nota.getFecha().format(FORMATO_FECHA),
+                    y,
+                    FUENTE_NEGRITA,
+                    10);
+
             y -= ALTO_LINEA_ENCABEZADO * 2.2f;
 
+  
             // --- Bloque destinatario (cargo / area / nombre / "SU DESPACHO") ---
             if (nota.getCargo() != null && !nota.getCargo().isBlank()) {
                 escribirTexto(cs, "SEÑOR " + nota.getCargo().toUpperCase(), MARGEN_IZQ, y, FUENTE_NEGRITA, 11);
