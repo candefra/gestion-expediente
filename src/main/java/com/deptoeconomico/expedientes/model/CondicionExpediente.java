@@ -6,7 +6,9 @@ package com.deptoeconomico.expedientes.model;
  */
 public enum CondicionExpediente {
     NUEVO("Nuevo"),
-    REINGRESADO("Reingresado");
+    REINGRESADO("Reingresado"),
+	FINALIZADO("Finalizado");
+	
 
     private final String etiqueta;
 

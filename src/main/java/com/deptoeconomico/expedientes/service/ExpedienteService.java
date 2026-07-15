@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.deptoeconomico.expedientes.model.CondicionExpediente;
 import com.deptoeconomico.expedientes.model.Empleado;
 import com.deptoeconomico.expedientes.model.Expediente;
 import com.deptoeconomico.expedientes.repository.EmpleadoRepository;
@@ -58,6 +59,17 @@ public class ExpedienteService {
 
         expediente.setEmpleadoAsignado(empleado);
         return expedienteRepository.save(expediente);
+    }
+    
+    @Transactional
+    public void finalizarExpediente(String numeroTramite) {
+
+        Expediente expediente = buscarPorNumero(numeroTramite);
+
+        expediente.setCondicion(CondicionExpediente.FINALIZADO);
+
+        expedienteRepository.save(expediente);
+
     }
     
 

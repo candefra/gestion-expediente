@@ -64,15 +64,17 @@ public class NotaController {
     }
 
     @PostMapping
-    public ResponseEntity<byte[]> generar(@RequestParam String numeroTramite,
-                                           @RequestParam Long empleadoId,
-                                           @RequestParam TipoNota tipo,
-                                           @RequestParam(required = false) String tipoOtro,
-                                           @RequestParam(required = false) String cargo,
-                                           @RequestParam(required = false) String area,
-                                           @RequestParam(required = false) String nombreDestinatario,
-                                           @RequestParam String cuerpo,
-                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha)
+    public Object generar(
+            @RequestParam String numeroTramite,
+            @RequestParam Long empleadoId,
+            @RequestParam TipoNota tipo,
+            @RequestParam String accion,
+            @RequestParam(required = false) String tipoOtro,
+            @RequestParam(required = false) String cargo,
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) String nombreDestinatario,
+            @RequestParam String cuerpo,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha)
             throws IOException {
 
         Expediente expediente = expedienteService.buscarPorNumero(numeroTramite);
@@ -89,22 +91,36 @@ public class NotaController {
         nota.setCuerpo(cuerpo);
         nota.setFecha(fecha);
 
+        // -------- GUARDAR ----------
+        if ("guardar".equals(accion)) {
+
+            notaService.guardar(nota);
+
+            return "redirect:/expedientes";
+        }
+
+        // -------- FINALIZAR ----------
         Nota notaGuardada = notaService.guardar(nota);
+
+        expedienteService.finalizarExpediente(numeroTramite);
+
         byte[] archivo = notaService.generarPdf(notaGuardada);
 
-        String nombreArchivo = notaGuardada.getTipoTexto().toLowerCase() + "-" + notaGuardada.getNumero()
-                + "-" + expediente.getNumeroTramite() + ".pdf";
+        String nombreArchivo =
+                notaGuardada.getTipoTexto().toLowerCase()
+                + "-"
+                + notaGuardada.getNumero()
+                + "-"
+                + expediente.getNumeroTramite()
+                + ".pdf";
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.attachment().filename(nombreArchivo).build().toString())
+                        ContentDisposition.attachment()
+                                .filename(nombreArchivo)
+                                .build()
+                                .toString())
                 .body(archivo);
-    }
-
-    @PostMapping("/{id}/estado")
-    public String actualizarEstado(@PathVariable Long id, @RequestParam EstadoNota estado) {
-        notaService.actualizarEstado(id, estado);
-        return "redirect:/notas";
     }
 }
