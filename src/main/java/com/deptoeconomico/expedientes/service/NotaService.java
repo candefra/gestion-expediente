@@ -119,7 +119,12 @@ public class NotaService {
             y -= ALTO_LINEA_ENCABEZADO * 2.5f;
 
             // --- Cuerpo (justificado, con sangria de primera linea) ---
+            // Sanitizamos los saltos de linea: un <textarea> puede mandar "\r\n"
+            // (Windows) y el "\r" (retorno de carro) no existe en la fuente
+            // Helvetica/WinAnsiEncoding, lo que rompia getStringWidth().
             String cuerpo = nota.getCuerpo() != null ? nota.getCuerpo() : "";
+            cuerpo = cuerpo.replace("\r\n", "\n").replace("\r", "\n");
+
             boolean primerParrafo = true;
             for (String parrafo : cuerpo.split("\n")) {
                 float sangria = primerParrafo || true ? 20f : 0f; // sangria en cada parrafo, como el modelo

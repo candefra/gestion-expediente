@@ -4,100 +4,139 @@
     <meta charset="UTF-8">
     <title>Nueva nota</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f5f7;
+        }
+        .card-nota {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #e3e5e8;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .card-nota .card-body {
+            padding: 2rem 2.25rem;
+        }
+        .seccion-titulo {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #6c757d;
+            margin-bottom: .75rem;
+        }
+        label.form-label {
+            font-weight: 500;
+            font-size: .9rem;
+        }
+        hr.divisor {
+            margin: 1.75rem 0;
+            border-color: #e9ecef;
+        }
+    </style>
 </head>
 <body>
-<div class="container py-4">
+<div class="container py-5" style="max-width: 900px;">
 
-    <!--<nav class="mb-4">
-        <a href="/expedientes" class="btn btn-outline-secondary btn-sm">Expedientes</a>
-        <a href="/remitos" class="btn btn-outline-secondary btn-sm">Remitos</a>
-        <a href="/empleados" class="btn btn-outline-secondary btn-sm">Empleados</a>
-        <a href="/notas" class="btn btn-secondary btn-sm">Notas</a>
-        <a href="/destinatarios" class="btn btn-outline-secondary btn-sm">Destinatarios frecuentes</a>
-    </nav> !-->
+    <div class="mb-4">
+        <a href="/expedientes" class="text-decoration-none text-muted small">&larr; Volver a expedientes</a>
+        <h1 class="h3 mt-2 mb-1">Generar nota / providencia</h1>
+        <p class="text-muted mb-0">
+            Al guardar se descarga el PDF listo para revisar e imprimir, con el número correlativo
+            correspondiente a este expediente.
+        </p>
+    </div>
 
-    <h1 class="h4 mb-3">Generar nota / providencia</h1>
-    <p class="text-muted small">
-        Al guardar se descarga el PDF listo para revisar e imprimir, con el número correlativo
-        correspondiente a este expediente.
-    </p>
+    <div class="card card-nota">
+        <div class="card-body">
+            <form th:action="@{/notas}" method="post">
 
-    <form th:action="@{/notas}" method="post">
+                <div class="seccion-titulo">Datos del trámite</div>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo</label>
+                        <select name="tipo" class="form-select" required>
+                            <option value="">Elegir...</option>
+                            <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.etiqueta}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Si elegiste "Otro", especificar</label>
+                        <input type="text" name="tipoOtro" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Expediente</label>
+                        <select name="numeroTramite" class="form-select" required>
+                            <option value="">Elegir...</option>
+                            <option th:each="exp : ${expedientes}"
+                                    th:value="${exp.numeroTramite}"
+                                    th:text="${exp.numeroTramite + ' — ' + (exp.caratula ?: '')}"
+                                    th:selected="${exp.numeroTramite == numeroTramiteSeleccionado}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
 
-        <div class="row g-3 mb-3">
-            <div class="col-auto">
-                <label class="form-label">Tipo</label>
-                <select name="tipo" class="form-select" required>
-                    <option value="">Elegir...</option>
-                    <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.etiqueta}"></option>
-                </select>
-            </div>
-            <div class="col-auto">
-                <label class="form-label">Si elegiste "Otro", especificar</label>
-                <input type="text" name="tipoOtro" class="form-control">
-            </div>
-            <div class="col-auto">
-                <label class="form-label">Expediente</label>
-                <select name="numeroTramite" class="form-select" required>
-                    <option value="">Elegir...</option>
-                    <option th:each="exp : ${expedientes}"
-                            th:value="${exp.numeroTramite}"
-                            th:text="${exp.numeroTramite + ' — ' + (exp.caratula ?: '')}"
-                            th:selected="${exp.numeroTramite == numeroTramiteSeleccionado}">
-                    </option>
-                </select>
-            </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="fecha" class="form-control" th:value="${fechaHoy}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Generada por</label>
+                        <select name="empleadoId" class="form-select" required>
+                            <option value="">Elegir...</option>
+                            <option th:each="emp : ${empleados}" th:value="${emp.id}" th:text="${emp.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+
+				<hr class="divisor"> 
+
+                <div class="seccion-titulo">Destinatario</div>
+                <div class="mb-3">
+                    <label class="form-label">Destinatario frecuente (opcional, autocompleta los campos)</label>
+                    <select id="selectorFrecuente" class="form-select">
+                        <option value="">— Cargar a mano —</option>
+                        <option th:each="d : ${destinatariosFrecuentes}"
+                                th:value="${d.id}"
+                                th:text="${d.cargo + (d.area != null ? ' — ' + d.area : '')}"
+                                th:attr="data-cargo=${d.cargo}, data-area=${d.area}, data-nombre=${d.nombre}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Cargo</label>
+                        <input type="text" id="campoCargo" name="cargo" class="form-control" placeholder="Jefe RT">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Área</label>
+                        <input type="text" id="campoArea" name="area" class="form-control" placeholder="Dirección de Impuesto">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" id="campoNombre" name="nombreDestinatario" class="form-control" placeholder="Dr. Fulano Pérez">
+                    </div>
+                </div>
+
+                <hr class="divisor">
+
+                <div class="seccion-titulo">Contenido</div>
+                <div class="mb-4">
+                    <label class="form-label">Cuerpo de la nota</label>
+                    <textarea name="cuerpo" class="form-control" rows="8" required
+                              placeholder="Redactá el texto de la nota o providencia..."></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">Generar y descargar</button>
+                    <a href="/expedientes" class="btn btn-outline-secondary px-4">Cancelar</a>
+                </div>
+            </form>
         </div>
-
-        <div class="row g-3 mb-3">
-            <div class="col-auto">
-                <label class="form-label">Fecha</label>
-                <input type="date" name="fecha" class="form-control" th:value="${fechaHoy}" required>
-            </div>
-            <div class="col-auto">
-                <label class="form-label">Generada por</label>
-                <select name="empleadoId" class="form-select" required>
-                    <option value="">Elegir...</option>
-                    <option th:each="emp : ${empleados}" th:value="${emp.id}" th:text="${emp.nombre}"></option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Destinatario frecuente (opcional, autocompleta)</label>
-            <select id="selectorFrecuente" class="form-select">
-                <option value="">— Cargar a mano —</option>
-                <option th:each="d : ${destinatariosFrecuentes}"
-                        th:value="${d.id}"
-                        th:text="${d.cargo + (d.area != null ? ' — ' + d.area : '')}"
-                        th:attr="data-cargo=${d.cargo}, data-area=${d.area}, data-nombre=${d.nombre}">
-                </option>
-            </select>
-        </div>
-
-        <div class="row g-3 mb-3">
-            <div class="col-auto">
-                <label class="form-label">Cargo</label>
-                <input type="text" id="campoCargo" name="cargo" class="form-control" placeholder="Jefe RT">
-            </div>
-            <div class="col-auto">
-                <label class="form-label">Área</label>
-                <input type="text" id="campoArea" name="area" class="form-control" placeholder="Dirección de Impuesto">
-            </div>
-            <div class="col-auto">
-                <label class="form-label">Nombre</label>
-                <input type="text" id="campoNombre" name="nombreDestinatario" class="form-control" placeholder="Dr. Fulano Pérez">
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Contenido de la nota</label>
-            <textarea name="cuerpo" class="form-control" rows="8" required></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Generar y descargar</button>
-        <a href="/expedientes" class="btn btn-outline-secondary">Cancelar</a>
-    </form>
+    </div>
 
 </div>
 
