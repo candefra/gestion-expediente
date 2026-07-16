@@ -1,6 +1,8 @@
 package com.deptoeconomico.expedientes.web;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,18 +15,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.deptoeconomico.expedientes.model.Expediente;
 import com.deptoeconomico.expedientes.service.EmpleadoService;
 import com.deptoeconomico.expedientes.service.ExpedienteService;
+import com.deptoeconomico.expedientes.service.NotaService;
 
 @Controller
 @RequestMapping("/expedientes")
 public class ExpedienteController {
 
     private final ExpedienteService expedienteService;
-    private final EmpleadoService empleadoService;
+    private final EmpleadoService empleadoService;  
+    private final NotaService notaService;
+    
+    public ExpedienteController(
+            ExpedienteService expedienteService,
+            EmpleadoService empleadoService,
+            NotaService notaService) {
 
-    public ExpedienteController(ExpedienteService expedienteService,
-                                 EmpleadoService empleadoService) {
         this.expedienteService = expedienteService;
         this.empleadoService = empleadoService;
+        this.notaService = notaService;
     }
 
     /**
@@ -41,6 +49,17 @@ public class ExpedienteController {
         model.addAttribute("expedientes", expedientes);
         model.addAttribute("empleados", empleadoService.listarTodos());
         model.addAttribute("empleadoIdSeleccionado", empleadoId);
+        Map<String, Boolean> tieneNotas = new HashMap<>();
+
+        for (Expediente exp : expedientes) {
+            tieneNotas.put(
+                exp.getNumeroTramite(),
+                notaService.tieneNotas(exp.getNumeroTramite())
+            );
+        }
+
+        model.addAttribute("tieneNotas", tieneNotas);
+        
         return "expedientes/lista";
     }
 

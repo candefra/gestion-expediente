@@ -15,4 +15,9 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
 
     /** Cuenta cuantas notas de un tipo ya tiene un expediente, para calcular el proximo numero. */
     long countByExpedienteAndTipo(Expediente expediente, TipoNota tipo);
+    
+    List<Nota> findByExpedienteNumeroTramiteOrderByFechaDesc(String numeroTramite);
+    
+    boolean existsByExpedienteNumeroTramite(String numeroTramite);
+    
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.deptoeconomico.expedientes.model.Empleado;
+import com.deptoeconomico.expedientes.model.EstadoDocumento;
 import com.deptoeconomico.expedientes.model.EstadoNota;
 import com.deptoeconomico.expedientes.model.Expediente;
 import com.deptoeconomico.expedientes.model.Nota;
@@ -44,6 +45,42 @@ public class NotaController {
         this.empleadoService = empleadoService;
         this.destinatarioFrecuenteService = destinatarioFrecuenteService;
     }
+    
+    @GetMapping("/expediente/{numeroTramite}")
+    public String verNotas(@PathVariable String numeroTramite, Model model) {
+
+        Expediente expediente = expedienteService.buscarPorNumero(numeroTramite);
+
+        model.addAttribute("expediente", expediente);
+        model.addAttribute("notas", notaService.listarPorExpediente(numeroTramite));
+
+        return "notas/historial";
+    }
+    
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> verPdf(@PathVariable Long id) throws IOException {
+
+        Nota nota = notaService.buscarPorId(id);
+
+        byte[] archivo = notaService.generarPdf(nota);
+
+        String nombreArchivo =
+                nota.getTipoTexto().toLowerCase()
+                + "-"
+                + nota.getNumero()
+                + "-"
+                + nota.getExpediente().getNumeroTramite()
+                + ".pdf";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.inline()
+                                .filename(nombreArchivo)
+                                .build()
+                                .toString())
+                .body(archivo);
+    }
 
     @GetMapping
     public String listar(Model model) {
@@ -65,20 +102,27 @@ public class NotaController {
 
     @PostMapping
     public Object generar(
-            @RequestParam String numeroTramite,
-            @RequestParam Long empleadoId,
-            @RequestParam TipoNota tipo,
+            @RequestParam(required = false) String numeroTramite,
+            @RequestParam(required = false) Long empleadoId,
+            @RequestParam(required = false) TipoNota tipo,
             @RequestParam String accion,
             @RequestParam(required = false) String tipoOtro,
             @RequestParam(required = false) String cargo,
             @RequestParam(required = false) String area,
             @RequestParam(required = false) String nombreDestinatario,
-            @RequestParam String cuerpo,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha)
+            @RequestParam(required = false) String cuerpo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha)
             throws IOException {
 
-        Expediente expediente = expedienteService.buscarPorNumero(numeroTramite);
-        Empleado empleado = empleadoService.buscarPorId(empleadoId);
+    	Expediente expediente = null;
+    	if (numeroTramite != null && !numeroTramite.isBlank()) {
+    	    expediente = expedienteService.buscarPorNumero(numeroTramite);
+    	}
+
+    	Empleado empleado = null;
+    	if (empleadoId != null) {
+    	    empleado = empleadoService.buscarPorId(empleadoId);
+    	}
 
         Nota nota = new Nota();
         nota.setExpediente(expediente);
@@ -94,12 +138,26 @@ public class NotaController {
         // -------- GUARDAR ----------
         if ("guardar".equals(accion)) {
 
+            nota.setEstadoDocumento(EstadoDocumento.BORRADOR);
+
             notaService.guardar(nota);
 
-            return "redirect:/expedientes";
+            return "redirect:/notas";
         }
 
         // -------- FINALIZAR ----------
+        if (expediente == null
+                || empleado == null
+                || tipo == null
+                || cuerpo == null
+                || cuerpo.isBlank()
+                || fecha == null) {
+
+            throw new IllegalArgumentException(
+                    "Para finalizar la nota debe completar todos los campos obligatorios.");
+        }
+        nota.setEstadoDocumento(EstadoDocumento.FINALIZADO);
+
         Nota notaGuardada = notaService.guardar(nota);
 
         expedienteService.finalizarExpediente(numeroTramite);

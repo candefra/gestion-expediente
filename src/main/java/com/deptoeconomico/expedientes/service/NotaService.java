@@ -47,19 +47,20 @@ public class NotaService {
     // servidor donde corre la app).
     private static final PDType1Font FUENTE = PDType1Font.HELVETICA;
     private static final PDType1Font FUENTE_NEGRITA = PDType1Font.HELVETICA_BOLD;
-
+    
     private final NotaRepository notaRepository;
-
+  
     public NotaService(NotaRepository notaRepository) {
         this.notaRepository = notaRepository;
     }
-
-    @Transactional
+    
+        @Transactional
     public Nota guardar(Nota nota) {
         long yaExistentes = notaRepository.countByExpedienteAndTipo(nota.getExpediente(), nota.getTipo());
         nota.setNumero((int) yaExistentes + 1);
         return notaRepository.save(nota);
     }
+        
 
     public List<Nota> listarTodas() {
         return notaRepository.findAll();
@@ -233,7 +234,21 @@ escribirTexto(cs, texto, x, y, fuente, tamanio);
         cs.lineTo(x + ancho, y - 2);
         cs.stroke();
     }
-
+    
+    public List<Nota> listarPorExpediente(String numeroTramite) {
+        return notaRepository.findByExpedienteNumeroTramiteOrderByFechaDesc(numeroTramite);
+    }
+    
+    public Nota buscarPorId(Long id) {
+        return notaRepository.findById(id)
+                .orElseThrow(() ->
+                    new IllegalArgumentException("No existe la nota " + id));
+    }
+    
+    public boolean tieneNotas(String numeroTramite) {
+        return notaRepository.existsByExpedienteNumeroTramite(numeroTramite);
+    }
+    
     private List<String> partirEnLineas(String texto, PDType1Font fuente, float tamanio, float anchoMaximo)
             throws IOException {
         List<String> lineas = new ArrayList<>();

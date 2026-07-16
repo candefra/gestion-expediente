@@ -63,6 +63,10 @@ public class Nota {
     @Enumerated(EnumType.STRING)
     private EstadoNota estado = EstadoNota.PENDIENTE;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private EstadoDocumento estadoDocumento = EstadoDocumento.BORRADOR;
+
     public Nota() {
     }
 
@@ -173,5 +177,13 @@ public class Nota {
     /** Título tal como va a aparecer arriba del documento, ej: "NOTA N° 2/ATER". */
     public String getTituloDocumento() {
         return getTipoTexto().toUpperCase() + " N° " + (numero != null ? numero : "") + "/DC-ATER";
+    }
+    
+    public EstadoDocumento getEstadoDocumento() {
+        return estadoDocumento;
+    }
+
+    public void setEstadoDocumento(EstadoDocumento estadoDocumento) {
+        this.estadoDocumento = estadoDocumento;
     }
 }

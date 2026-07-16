@@ -40,12 +40,10 @@
 
 <div class="container py-5" style="max-width: 1100px;">
 
-	<div class="mb-4">
-	     <a href="/index" class="text-decoration-none text-muted small">&larr; Volver al inicio</a>
+    <div class="mb-4">
+        <a href="/index" class="text-decoration-none text-muted small">&larr; Volver al inicio</a>
+    </div>
 
-	     </p>
-	 </div>
-	 	
     <div class="text-center mb-4">
         <h1 class="h3 mb-1">Lista de Expedientes</h1>
         <h4 class="text-secondary fw-normal">Departamento Económico</h4>
@@ -100,27 +98,42 @@
                     <td th:text="${exp.caratula ?: '—'}"></td>
                     <td th:text="${exp.empleadoAsignado != null ? exp.empleadoAsignado.nombre : 'Sin asignar'}"></td>
                     <td>
-                        <span class="badge badge-estado bg-secondary-subtle text-secondary-emphasis"
+                        <span class="badge badge-estado"
+                              th:classappend="${exp.condicion.name() == 'FINALIZADO'} ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis'"
                               th:text="${exp.condicion ?: '—'}">
                         </span>
                     </td>
                     <td th:text="${#temporals.format(exp.fechaIngreso, 'dd/MM/yyyy')}"></td>
                     <td class="text-center">
                         <div class="d-flex gap-1 justify-content-center">
-                            <!--<a th:href="@{/expedientes/{n}(n=${exp.numeroTramite})}"
-                               class="btn btn-outline-primary btn-sm">
-                                Consultar
-                            </a>-->
 
-                            <a th:href="@{/notas/nueva(numeroTramite=${exp.numeroTramite})}"
-                               class="btn btn-outline-success btn-sm">
-                                Responder
-                            </a>
+                            <!-- Expediente finalizado: solo se consulta el historial, no se edita mas -->
+                            <th:block th:if="${exp.condicion.name() == 'FINALIZADO'}">
+                                <a th:href="@{/notas/expediente/{numero}(numero=${exp.numeroTramite})}"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    Ver historial
+                                </a>
+                            </th:block>
 
-                            <a th:href="@{/expedientes/{n}/reasignar(n=${exp.numeroTramite})}"
-                               class="btn btn-outline-warning btn-sm">
-                                Reasignar
-                            </a>
+                            <!-- Expediente en tramite: se puede seguir respondiendo y reasignar -->
+                            <th:block th:unless="${exp.condicion.name() == 'FINALIZADO'}">
+                                <a th:href="@{/notas/nueva(numeroTramite=${exp.numeroTramite})}"
+                                   class="btn btn-success btn-sm">
+                                    Responder
+                                </a>
+
+                                <a th:if="${tieneNotas[exp.numeroTramite]}"
+                                   th:href="@{/notas/expediente/{numero}(numero=${exp.numeroTramite})}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Ver notas
+                                </a>
+
+                                <a th:href="@{/expedientes/{n}/reasignar(n=${exp.numeroTramite})}"
+                                   class="btn btn-outline-warning btn-sm">
+                                    Reasignar
+                                </a>
+                            </th:block>
+
                         </div>
                     </td>
                 </tr>
