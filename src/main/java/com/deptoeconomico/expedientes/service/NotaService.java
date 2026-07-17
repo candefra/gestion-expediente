@@ -244,7 +244,10 @@ escribirTexto(cs, texto, x, y, fuente, tamanio);
     }
     
     public List<Nota> listarPorExpediente(String numeroTramite) {
-        return notaRepository.findByExpedienteNumeroTramiteOrderByFechaDesc(numeroTramite);
+        return notaRepository.findByExpedienteNumeroTramiteOrderByFechaDesc(numeroTramite)
+                .stream()
+                .filter(n -> n.getEstadoDocumento() == EstadoDocumento.FINALIZADO)
+                .toList();
     }
     
     public Nota buscarPorId(Long id) {
