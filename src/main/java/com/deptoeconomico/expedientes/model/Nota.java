@@ -26,7 +26,7 @@ public class Nota {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    
     @Enumerated(EnumType.STRING)
     private TipoNota tipo;
 
@@ -36,11 +36,10 @@ public class Nota {
     /** Correlativo dentro del mismo expediente + tipo. Lo calcula el service. */
     private Integer numero;
 
-    @NotNull
+ 
     private LocalDate fecha;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull
     private Expediente expediente;
 
     @ManyToOne(fetch = FetchType.LAZY)

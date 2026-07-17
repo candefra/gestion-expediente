@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -18,6 +19,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.deptoeconomico.expedientes.model.EstadoDocumento;
 import com.deptoeconomico.expedientes.model.EstadoNota;
 import com.deptoeconomico.expedientes.model.Expediente;
 import com.deptoeconomico.expedientes.model.Nota;
@@ -55,13 +57,26 @@ public class NotaService {
     }
     
         @Transactional
-    public Nota guardar(Nota nota) {
-        long yaExistentes = notaRepository.countByExpedienteAndTipo(nota.getExpediente(), nota.getTipo());
-        nota.setNumero((int) yaExistentes + 1);
-        return notaRepository.save(nota);
-    }
-        
+        public Nota guardar(Nota nota) {
 
+            if (nota.getExpediente() != null && nota.getTipo() != null) {
+                long yaExistentes =
+                        notaRepository.countByExpedienteAndTipo(
+                                nota.getExpediente(),
+                                nota.getTipo());
+
+                nota.setNumero((int) yaExistentes + 1);
+            }
+
+            return notaRepository.save(nota);
+        }
+        
+        public Optional<Nota> buscarBorrador(String numeroTramite) {
+            return notaRepository.findFirstByExpedienteNumeroTramiteAndEstadoDocumento(
+                    numeroTramite,
+                    EstadoDocumento.BORRADOR);
+        }
+        
     public List<Nota> listarTodas() {
         return notaRepository.findAll();
     }
@@ -211,14 +226,7 @@ escribirTexto(cs, texto, x, y, fuente, tamanio);
         cs.endText();
     }
 
-    private float escribirCentradoSubrayado(PDPageContentStream cs, String texto, float y,
-                                             PDType1Font fuente, float tamanio) throws IOException {
-        float ancho = fuente.getStringWidth(texto) / 1000 * tamanio;
-        float x = (ANCHO_PAGINA - ancho) / 2;
-        escribirTexto(cs, texto, x, y, fuente, tamanio);
-        dibujarSubrayado(cs, x, y, ancho);
-        return y;
-    }
+
 
     private float escribirSubrayado(PDPageContentStream cs, String texto, float x, float y,
                                      PDType1Font fuente, float tamanio) throws IOException {
@@ -272,4 +280,6 @@ escribirTexto(cs, texto, x, y, fuente, tamanio);
         }
         return lineas;
     }
+    
+   
 }

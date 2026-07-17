@@ -2,6 +2,7 @@ package com.deptoeconomico.expedientes.web;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ContentDisposition;
@@ -90,18 +91,35 @@ public class NotaController {
     }
 
     @GetMapping("/nueva")
-    public String formularioNueva(@RequestParam(required = false) String numeroTramite, Model model) {
+    public String formularioNueva(@RequestParam(required = false) String numeroTramite,
+                                  Model model) {
+
         model.addAttribute("expedientes", expedienteService.listarTodos());
         model.addAttribute("empleados", empleadoService.listarTodos());
         model.addAttribute("tipos", TipoNota.values());
         model.addAttribute("destinatariosFrecuentes", destinatarioFrecuenteService.listarTodos());
+
         model.addAttribute("numeroTramiteSeleccionado", numeroTramite);
-        model.addAttribute("fechaHoy", LocalDate.now());
+        model.addAttribute("fechaHoy", LocalDate.now()); // 👈 SIEMPRE, sin importar el resto
+
+        if (numeroTramite != null) {
+            Optional<Nota> borrador = notaService.buscarBorrador(numeroTramite);
+
+            if (borrador.isPresent()) {
+                model.addAttribute("nota", borrador.get());
+            } else {
+                model.addAttribute("nota", new Nota());
+            }
+        } else {
+            model.addAttribute("nota", new Nota());
+        }
+
         return "notas/nueva";
     }
 
     @PostMapping
     public Object generar(
+    		 @RequestParam(required = false) Long id,
             @RequestParam(required = false) String numeroTramite,
             @RequestParam(required = false) Long empleadoId,
             @RequestParam(required = false) TipoNota tipo,
@@ -124,7 +142,13 @@ public class NotaController {
     	    empleado = empleadoService.buscarPorId(empleadoId);
     	}
 
-        Nota nota = new Nota();
+    	Nota nota;
+
+    	if (id != null) {
+    	    nota = notaService.buscarPorId(id);
+    	} else {
+    	    nota = new Nota();
+    	}
         nota.setExpediente(expediente);
         nota.setEmpleado(empleado);
         nota.setTipo(tipo);
@@ -144,18 +168,21 @@ public class NotaController {
 
             return "redirect:/notas";
         }
+ 
+     // -------- FINALIZAR ----------
+        StringBuilder faltantes = new StringBuilder();
+        if (expediente == null) faltantes.append("Expediente, ");
+        if (empleado == null) faltantes.append("Generada por, ");
+        if (tipo == null) faltantes.append("Tipo, ");
+        if (cuerpo == null || cuerpo.isBlank()) faltantes.append("Cuerpo, ");
+        if (fecha == null) faltantes.append("Fecha, ");
 
-        // -------- FINALIZAR ----------
-        if (expediente == null
-                || empleado == null
-                || tipo == null
-                || cuerpo == null
-                || cuerpo.isBlank()
-                || fecha == null) {
-
+        if (faltantes.length() > 0) {
+            String lista = faltantes.substring(0, faltantes.length() - 2); // saca la última ", "
             throw new IllegalArgumentException(
-                    "Para finalizar la nota debe completar todos los campos obligatorios.");
+                    "Para finalizar la nota debe completar: " + lista + ".");
         }
+        
         nota.setEstadoDocumento(EstadoDocumento.FINALIZADO);
 
         Nota notaGuardada = notaService.guardar(nota);

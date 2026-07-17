@@ -49,16 +49,22 @@
 
     <div class="card card-nota">
         <div class="card-body">
-            <form th:action="@{/notas}" method="post">
+			<form th:action="@{/notas}" method="post">
 
-                <div class="seccion-titulo">Datos del trámite</div>
+			    <input type="hidden" name="id" th:value="${nota.id}">
+
+			    <div class="seccion-titulo">Datos del trámite</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
                         <label class="form-label">Tipo</label>
-                        <select name="tipo" class="form-select" required>
-                            <option value="">Elegir...</option>
-                            <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.etiqueta}"></option>
-                        </select>
+						<select name="tipo" class="form-select" required>
+						    <option value="">Elegir...</option>
+						    <option th:each="t : ${tipos}"
+						            th:value="${t}"
+						            th:text="${t.etiqueta}"
+						            th:selected="${nota.tipo == t}">
+						    </option>
+						</select>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Si elegiste "Otro", especificar</label>
@@ -80,14 +86,20 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Fecha</label>
-                        <input type="date" name="fecha" class="form-control" th:value="${fechaHoy}" required>
+						<input type="date" name="fecha" class="form-control" required
+						       th:value="${nota.fecha != null ? nota.fecha : fechaHoy}">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Generada por</label>
-                        <select name="empleadoId" class="form-select" required>
-                            <option value="">Elegir...</option>
-                            <option th:each="emp : ${empleados}" th:value="${emp.id}" th:text="${emp.nombre}"></option>
-                        </select>
+						<select name="empleadoId" class="form-select" required>
+						    <option value="">Elegir...</option>
+
+						    <option th:each="emp : ${empleados}"
+						            th:value="${emp.id}"
+						            th:text="${emp.nombre}"
+						            th:selected="${nota.empleado != null && nota.empleado.id == emp.id}">
+						    </option>
+						</select>
                     </div>
                 </div>
 
@@ -109,15 +121,27 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Cargo</label>
-                        <input type="text" id="campoCargo" name="cargo" class="form-control" placeholder="Jefe RT">
+						<input type="text"
+						       id="campoCargo"
+						       name="cargo"
+						       class="form-control"
+						       th:value="${nota.cargo}">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Área</label>
-                        <input type="text" id="campoArea" name="area" class="form-control" placeholder="Dirección de Impuesto">
+						<input type="text"
+						       id="campoArea"
+						       name="area"
+						       class="form-control"
+						       th:value="${nota.area}">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Nombre</label>
-                        <input type="text" id="campoNombre" name="nombreDestinatario" class="form-control" placeholder="Dr. Fulano Pérez">
+						<input type="text"
+						       id="campoNombre"
+						       name="nombreDestinatario"
+						       class="form-control"
+						       th:value="${nota.nombreDestinatario}">
                     </div>
                 </div>
 
@@ -125,9 +149,9 @@
 
                 <div class="seccion-titulo">Contenido</div>
                 <div class="mb-4">
-                    <label class="form-label">Cuerpo de la nota</label>
-                    <textarea name="cuerpo" class="form-control" rows="8" required
-                              placeholder="Redactá el texto de la nota o providencia..."></textarea>
+					<label class="form-label">Cuerpo de la nota</label>
+
+					<textarea name="cuerpo" class="form-control" rows="8" required th:text="${nota.cuerpo}"></textarea>
                 </div>
 
                 <div class="d-flex gap-2">
