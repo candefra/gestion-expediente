@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.deptoeconomico.expedientes.model.CondicionExpediente;
 import com.deptoeconomico.expedientes.model.Empleado;
+import com.deptoeconomico.expedientes.model.EstadoExpediente;
 import com.deptoeconomico.expedientes.model.Expediente;
 import com.deptoeconomico.expedientes.repository.EmpleadoRepository;
 import com.deptoeconomico.expedientes.repository.ExpedienteRepository;
@@ -66,11 +67,14 @@ public class ExpedienteService {
 
         Expediente expediente = buscarPorNumero(numeroTramite);
 
-        expediente.setCondicion(CondicionExpediente.FINALIZADO);
-
+        expediente.setEstado(EstadoExpediente.FINALIZADO);
         expedienteRepository.save(expediente);
 
     }
     
+    @Transactional
+    public Expediente guardar(Expediente expediente) {
+        return expedienteRepository.save(expediente);
+    }
 
 }

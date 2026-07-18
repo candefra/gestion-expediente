@@ -2,6 +2,7 @@ package com.deptoeconomico.expedientes.model;
 
 import java.time.LocalDate;
 
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,14 +36,19 @@ public class Expediente {
     private String iniciador;
 
     private String origen;
-
+    
+       
     @NotNull(message = "La fecha de ingreso es obligatoria")
     private LocalDate fechaIngreso;
 
     @NotNull(message = "La condicion es obligatoria")
     @Enumerated(EnumType.STRING)
     private CondicionExpediente condicion;
-
+   
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private EstadoExpediente estado = EstadoExpediente.EN_TRAMITE;
+   
     /**
      * Quien tiene el expediente ahora mismo. Se va actualizando cada vez
      * que se reasigna; no guardamos el historial de reasignaciones internas.
@@ -123,5 +129,12 @@ public class Expediente {
 
     public void setEmpleadoAsignado(Empleado empleadoAsignado) {
         this.empleadoAsignado = empleadoAsignado;
+    }
+    public EstadoExpediente getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoExpediente estado) {
+        this.estado = estado;
     }
 }

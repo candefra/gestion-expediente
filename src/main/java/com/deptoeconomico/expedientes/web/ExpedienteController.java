@@ -1,5 +1,6 @@
 package com.deptoeconomico.expedientes.web;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.deptoeconomico.expedientes.model.CondicionExpediente;
+import com.deptoeconomico.expedientes.model.Empleado;
 import com.deptoeconomico.expedientes.model.Expediente;
+import com.deptoeconomico.expedientes.model.TipoExpediente;
 import com.deptoeconomico.expedientes.service.EmpleadoService;
 import com.deptoeconomico.expedientes.service.ExpedienteService;
 import com.deptoeconomico.expedientes.service.NotaService;
@@ -86,5 +90,48 @@ public class ExpedienteController {
             model.addAttribute("error", e.getMessage());
             return "expedientes/busqueda";
         }
+    }
+    
+    @GetMapping("/nuevo")
+    public String nuevo(Model model){
+
+        model.addAttribute("empleados", empleadoService.listarTodos());
+        model.addAttribute("tipos", TipoExpediente.values());
+        model.addAttribute("fechaHoy", LocalDate.now());
+
+        return "expedientes/nuevo";
+    }
+    
+    @PostMapping
+    public String guardar(
+            @RequestParam String numeroTramite,
+            @RequestParam(required = false) String numeroUnico,
+            @RequestParam TipoExpediente tipo,
+            @RequestParam(required = false) String caratula,
+            @RequestParam(required = false) String iniciador,
+            @RequestParam(required = false) String origen,
+            @RequestParam LocalDate fechaIngreso,
+            @RequestParam(required = false) Long empleadoId){
+
+        Expediente expediente = new Expediente();
+
+        expediente.setNumeroTramite(numeroTramite);
+        expediente.setNumeroUnico(numeroUnico);
+        expediente.setTipo(tipo);
+        expediente.setCaratula(caratula);
+        expediente.setIniciador(iniciador);
+        expediente.setOrigen(origen);
+        expediente.setFechaIngreso(fechaIngreso);
+
+        expediente.setCondicion(CondicionExpediente.NUEVO);
+
+        if(empleadoId != null){
+            Empleado empleado = empleadoService.buscarPorId(empleadoId);
+            expediente.setEmpleadoAsignado(empleado);
+        }
+
+        expedienteService.guardar(expediente);
+
+        return "redirect:/expedientes";
     }
 }

@@ -98,17 +98,17 @@
                     <td th:text="${exp.caratula ?: '—'}"></td>
                     <td th:text="${exp.empleadoAsignado != null ? exp.empleadoAsignado.nombre : 'Sin asignar'}"></td>
                     <td>
-                        <span class="badge badge-estado"
-                              th:classappend="${exp.condicion.name() == 'FINALIZADO'} ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis'"
-                              th:text="${exp.condicion ?: '—'}">
-                        </span>
+						<span class="badge badge-estado"
+						th:classappend="${exp.estado != null and exp.estado.name() == 'FINALIZADO'} ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis'"
+						th:text="${exp.estado != null ? exp.estado.etiqueta : 'Sin estado'}"
+						</span>
                     </td>
                     <td th:text="${#temporals.format(exp.fechaIngreso, 'dd/MM/yyyy')}"></td>
                     <td class="text-center">
                         <div class="d-flex gap-1 justify-content-center">
 
                             <!-- Expediente finalizado: solo se consulta el historial, no se edita mas -->
-                            <th:block th:if="${exp.condicion.name() == 'FINALIZADO'}">
+                            <th:block th:if="${exp.estado != null and exp.estado.name() == 'FINALIZADO'}">
                                 <a th:href="@{/notas/expediente/{numero}(numero=${exp.numeroTramite})}"
                                    class="btn btn-outline-secondary btn-sm">
                                     Ver historial
@@ -116,7 +116,7 @@
                             </th:block>
 
                             <!-- Expediente en tramite: se puede seguir respondiendo y reasignar -->
-                            <th:block th:unless="${exp.condicion.name() == 'FINALIZADO'}">
+                            <th:block th:unless="${exp.estado != null and exp.estado.name() == 'FINALIZADO'}">
                                 <a th:href="@{/notas/nueva(numeroTramite=${exp.numeroTramite})}"
                                    class="btn btn-success btn-sm">
                                     Responder
