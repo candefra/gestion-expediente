@@ -58,10 +58,15 @@
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].numeroTramite}" class="form-control form-control-sm"></td>
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].numeroUnico}" class="form-control form-control-sm"></td>
                     <td>
-                        <select th:field="*{detalles[__${stat.index}__].tipo}" class="form-select form-select-sm">
-                            <option value="">--</option>
-                            <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.etiqueta}"></option>
-                        </select>
+						<select th:field="*{detalles[__${stat.index}__].tipo}"
+						        class="form-select form-select-sm"
+						        required>
+						    <option value="">--</option>
+						    <option th:each="t : ${tipos}"
+						            th:value="${t}"
+						            th:text="${t.etiqueta}">
+						    </option>
+						</select>
                     </td>
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].caratula}" class="form-control form-control-sm"></td>
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].iniciador}" class="form-control form-control-sm"></td>

@@ -74,6 +74,8 @@ public class RemitoController {
             detalle.setFojas(fila.getFojas());
             detalles.add(detalle);
         }
+        
+        
 
         remitoService.registrarRemito(remito, detalles);
         return "redirect:/remitos";

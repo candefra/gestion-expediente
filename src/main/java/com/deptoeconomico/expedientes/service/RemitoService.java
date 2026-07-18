@@ -58,8 +58,13 @@ public class RemitoService {
                         return expedienteCargado;
                     });
 
+            if (expediente.getTipo() == null) {
+                throw new IllegalArgumentException(
+                    "Todos los expedientes del remito deben tener un tipo de trámite."
+                );
+            }
             expedienteRepository.save(expediente);
-
+            
             detalle.setExpediente(expediente);
             detalle.setRemito(remito);
             remito.getDetalles().add(detalle);
