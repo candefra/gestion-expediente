@@ -14,22 +14,25 @@ import com.deptoeconomico.expedientes.model.DetalleRemito;
 import com.deptoeconomico.expedientes.model.Expediente;
 import com.deptoeconomico.expedientes.model.Remito;
 import com.deptoeconomico.expedientes.model.TipoExpediente;
+import com.deptoeconomico.expedientes.service.EmpleadoService;
 import com.deptoeconomico.expedientes.service.RemitoService;
 
 @Controller
 @RequestMapping("/remitos")
 public class RemitoController {
 
-    /** Cantidad de filas vacias con las que arranca el formulario nuevo. */
+	/** Cantidad de filas vacias con las que arranca el formulario nuevo. */
     private static final int FILAS_INICIALES = 3;
 
     private final RemitoService remitoService;
+    private final EmpleadoService empleadoService;
 
-    public RemitoController(RemitoService remitoService) {
+    public RemitoController(RemitoService remitoService, EmpleadoService empleadoService) {
         this.remitoService = remitoService;
+        this.empleadoService = empleadoService;
     }
 
-    @GetMapping
+      @GetMapping
     public String listar(Model model) {
         model.addAttribute("remitos", remitoService.listarTodos());
         return "remitos/lista";
@@ -43,6 +46,7 @@ public class RemitoController {
         }
         model.addAttribute("remitoFormulario", formulario);
         model.addAttribute("tipos", TipoExpediente.values());
+        model.addAttribute("empleados", empleadoService.listarTodos());
         return "remitos/nuevo";
     }
 
@@ -68,16 +72,28 @@ public class RemitoController {
             expediente.setCaratula(fila.getCaratula());
             expediente.setIniciador(fila.getIniciador());
             expediente.setOrigen(fila.getOrigen());
+            expediente.setEmpleadoAsignado(empleadoService.buscarPorId(fila.getEmpleado()));
 
             DetalleRemito detalle = new DetalleRemito();
             detalle.setExpediente(expediente);
             detalle.setFojas(fila.getFojas());
             detalles.add(detalle);
+        }                 
+            long totalLlenas = formulario.getDetalles().stream()
+                    .filter(f -> f.getNumeroTramite() != null && !f.getNumeroTramite().isBlank())
+                    .count();
+
+        if (totalLlenas == 0) {
+            throw new IllegalArgumentException("No ingresaste ningún expediente válido.");
         }
-        
-        
+
+        if (!formulario.getDetalles().isEmpty() && totalLlenas < formulario.getDetalles().size()) {
+            // Podés agregar un log o mensaje en el template
+            System.out.println("Se procesaron " + totalLlenas + " de " + 
+                formulario.getDetalles().size() + " expedientes.");
+        }
 
         remitoService.registrarRemito(remito, detalles);
         return "redirect:/remitos";
     }
-}
+    }

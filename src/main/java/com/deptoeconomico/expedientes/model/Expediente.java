@@ -1,14 +1,17 @@
 package com.deptoeconomico.expedientes.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -37,6 +40,7 @@ public class Expediente {
 
     private String origen;
     
+    
        
     @NotNull(message = "La fecha de ingreso es obligatoria")
     private LocalDate fechaIngreso;
@@ -55,6 +59,12 @@ public class Expediente {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     private Empleado empleadoAsignado;
+    
+    @OneToMany(mappedBy = "expediente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Nota> notas = new ArrayList<>();
+    
+    public List<Nota> getNotas() { return notas; }
+    public void setNotas(List<Nota> notas) { this.notas = notas; }
 
     public Expediente() {
     }
@@ -137,4 +147,6 @@ public class Expediente {
     public void setEstado(EstadoExpediente estado) {
         this.estado = estado;
     }
+    
+  
 }

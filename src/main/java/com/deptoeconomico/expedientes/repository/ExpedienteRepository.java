@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.deptoeconomico.expedientes.model.Empleado;
+import com.deptoeconomico.expedientes.model.EstadoExpediente;
 import com.deptoeconomico.expedientes.model.Expediente;
 import com.deptoeconomico.expedientes.model.TipoExpediente;
 
@@ -18,4 +19,10 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, String> 
 
     /** Expedientes que todavia no fueron asignados a nadie. */
     List<Expediente> findByEmpleadoAsignadoIsNull();
-}
+    
+    boolean existsByNumeroTramite(String numeroTramite); // ← AGREGAR ESTO
+
+    List<Expediente> findByEstado(EstadoExpediente estado);
+    }
+
+

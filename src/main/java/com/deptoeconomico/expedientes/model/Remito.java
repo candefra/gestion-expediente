@@ -33,7 +33,7 @@ public class Remito {
     private String destino;
 
     @OneToMany(mappedBy = "remito", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DetalleRemito> detalles = new ArrayList<>();
+    private List<DetalleRemito> detalles = new ArrayList<>();   
 
     public Remito() {
     }

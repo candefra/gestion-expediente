@@ -96,7 +96,25 @@
                 <tr th:each="exp : ${expedientes}">
                     <td th:text="${exp.numeroTramite}" class="fw-medium"></td>
                     <td th:text="${exp.caratula ?: '—'}"></td>
-                    <td th:text="${exp.empleadoAsignado != null ? exp.empleadoAsignado.nombre : 'Sin asignar'}"></td>
+					<td>
+					    <span th:if="${exp.empleadoAsignado != null}" th:text="${exp.empleadoAsignado.nombre}"></span>
+
+					    <span th:if="${exp.empleadoAsignado == null and exp.estado != null and exp.estado.name() == 'FINALIZADO'}"
+					          class="text-muted">Sin asignar</span>
+
+					    <form th:if="${exp.empleadoAsignado == null and (exp.estado == null or exp.estado.name() != 'FINALIZADO')}"
+					          th:action="@{/expedientes/{n}/asignar(n=${exp.numeroTramite})}"
+					          method="post" class="d-flex gap-1">
+					        <select name="empleadoId" class="form-select form-select-sm" required>
+					            <option value="">Asignar a...</option>
+					            <option th:each="emp : ${empleados}"
+					                    th:value="${emp.id}"
+					                    th:text="${emp.nombre}">
+					            </option>
+					        </select>
+					        <button type="submit" class="btn btn-outline-primary btn-sm">Asignar</button>
+					    </form>
+					</td>
                     <td>
 						<span class="badge badge-estado"
 						th:classappend="${exp.estado != null and exp.estado.name() == 'FINALIZADO'} ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis'"

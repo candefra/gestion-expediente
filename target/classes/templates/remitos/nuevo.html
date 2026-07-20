@@ -47,10 +47,11 @@
                     <th>N° trámite</th>
                     <th>N° único</th>
                     <th>Tipo</th>
-                    <th>Carátula</th>
+					<th>Asignado a</th>				
+                    <!-- <th>Carátula</th>
                     <th>Iniciador</th>
                     <th>Origen</th>
-                    <th>Fojas</th>
+                    <th>Fojas</th> !-->
                 </tr>
             </thead>
             <tbody>
@@ -68,11 +69,24 @@
 						    </option>
 						</select>
                     </td>
-                    <td><input type="text" th:field="*{detalles[__${stat.index}__].caratula}" class="form-control form-control-sm"></td>
+					<td>
+						<select th:field="*{detalles[__${stat.index}__].empleado}"
+						        class="form-select form-select-sm"
+						        required>
+						    <option value="">--</option>
+						    <option th:each="t : ${empleados}"
+						            th:value="${t.id}"
+						            th:text="${t.nombre}">
+						    </option>
+						</select>
+					</td>
+					
+                    <!-- <td><input type="text" th:field="*{detalles[__${stat.index}__].caratula}" class="form-control form-control-sm"></td>
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].iniciador}" class="form-control form-control-sm"></td>
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].origen}" class="form-control form-control-sm"></td>
                     <td><input type="number" th:field="*{detalles[__${stat.index}__].fojas}" class="form-control form-control-sm" style="width:70px"></td>
-                </tr>
+					!-->
+					 </tr>
             </tbody>
         </table>
 

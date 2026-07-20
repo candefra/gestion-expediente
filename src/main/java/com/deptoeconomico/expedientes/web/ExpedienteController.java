@@ -125,11 +125,6 @@ public class ExpedienteController {
 
         expediente.setCondicion(CondicionExpediente.NUEVO);
 
-        if(empleadoId != null){
-            Empleado empleado = empleadoService.buscarPorId(empleadoId);
-            expediente.setEmpleadoAsignado(empleado);
-        }
-
         expedienteService.guardar(expediente);
 
         return "redirect:/expedientes";

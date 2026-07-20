@@ -16,6 +16,15 @@ public class DetalleFormulario {
     private String iniciador;
     private String origen;
     private Integer fojas;
+    private Long empleado;
+
+    public Long getEmpleado() {
+        return empleado;
+    }
+    public void setEmpleado(Long empleado) {
+        this.empleado = empleado;
+    }
+   
 
     public String getNumeroTramite() {
         return numeroTramite;
@@ -72,4 +81,6 @@ public class DetalleFormulario {
     public void setFojas(Integer fojas) {
         this.fojas = fojas;
     }
+
+
 }

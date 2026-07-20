@@ -57,6 +57,9 @@ public class ExpedienteService {
                 .orElseThrow(() -> new IllegalArgumentException("No existe el expediente " + numeroTramite));
         Empleado empleado = empleadoRepository.findById(empleadoId)
                 .orElseThrow(() -> new IllegalArgumentException("No existe el empleado con id " + empleadoId));
+        if (expediente.getEstado() == EstadoExpediente.FINALIZADO) {
+            throw new IllegalStateException("No se puede reasignar un expediente finalizado.");
+        }
 
         expediente.setEmpleadoAsignado(empleado);
         return expedienteRepository.save(expediente);
@@ -74,7 +77,17 @@ public class ExpedienteService {
     
     @Transactional
     public Expediente guardar(Expediente expediente) {
+        // ← VALIDACIÓN: no permitir duplicados
+        if (expediente.getNumeroTramite() != null && !expediente.getNumeroTramite().isBlank()) {
+            boolean existe = expedienteRepository.existsByNumeroTramite(expediente.getNumeroTramite());
+            if (existe) {
+                throw new IllegalArgumentException(
+                    "Ya existe un expediente con el número de trámite: " + expediente.getNumeroTramite()
+                );
+            }
+        }
         return expedienteRepository.save(expediente);
     }
+    
 
 }
