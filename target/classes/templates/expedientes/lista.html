@@ -146,10 +146,18 @@
                                     Ver notas
                                 </a>
 
-                                <a th:href="@{/expedientes/{n}/reasignar(n=${exp.numeroTramite})}"
-                                   class="btn btn-outline-warning btn-sm">
-                                    Reasignar
-                                </a>
+								<form th:if="${tieneNotas[exp.numeroTramite]}"
+								      th:action="@{/expedientes/{n}/reasignar(n=${exp.numeroTramite})}"
+								      method="post" class="d-flex gap-1">
+								    <select name="empleadoId" class="form-select form-select-sm" required>
+								        <option value="">Asignar a...</option>
+								        <option th:each="emp : ${empleados}"
+								                th:value="${emp.id}"
+								                th:text="${emp.nombre}">
+								        </option>
+								    </select>
+								    <button type="submit" class="btn btn-outline-warning btn-sm">Reasignar</button>
+								</form>
                             </th:block>
 
                         </div>

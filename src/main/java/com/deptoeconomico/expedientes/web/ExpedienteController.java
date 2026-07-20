@@ -74,6 +74,12 @@ public class ExpedienteController {
         return "redirect:/expedientes";
     }
     
+    @PostMapping("/{numeroTramite}/reasignar")
+    public String reasignar(@PathVariable String numeroTramite, @RequestParam Long empleadoId) {
+        expedienteService.asignarEmpleado(numeroTramite, empleadoId);  // ← Reutiliza el mismo service
+        return "redirect:/expedientes";
+    }
+    
     @GetMapping("/buscar")
     public String buscarExpediente() {
         return "expedientes/busqueda";
