@@ -21,14 +21,11 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
     long countByExpedienteAndTipo(Expediente expediente, TipoNota tipo);
     
     /** Notas de un expediente + tipo en el mismo año */
-    @Query("SELECT n FROM Nota n WHERE " +
-    	       "n.expediente.numeroTramite = :numeroTramite " +
-    	       "AND n.tipo = :tipo " +
-    	       "AND EXTRACT(YEAR FROM n.fecha) = :anio")
-    List<Nota> findByExpedienteAndTipoAndFechaYear(
-    	        @Param("numeroTramite") String numeroTramite,
-    	        @Param("tipo") TipoNota tipo,
-    	        @Param("anio") int anio);
+    @Query("SELECT COALESCE(MAX(n.numero), 0) FROM Nota n " +
+    	       "WHERE n.tipo = :tipo " +
+    	       "AND EXTRACT(YEAR FROM n.fecha) = :anio " +
+    	       "AND n.estadoDocumento = com.deptoeconomico.expedientes.model.EstadoDocumento.FINALIZADO")
+    	int buscarMaximoNumero(@Param("tipo") TipoNota tipo, @Param("anio") int anio);
     
     List<Nota> findByExpedienteNumeroTramiteOrderByFechaDesc(String numeroTramite);
     

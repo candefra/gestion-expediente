@@ -56,21 +56,7 @@ public class NotaService {
         this.notaRepository = notaRepository;
     }
     
-        @Transactional
-        public Nota guardar(Nota nota) {
-
-            if (nota.getExpediente() != null && nota.getTipo() != null) {
-                long yaExistentes =
-                        notaRepository.countByExpedienteAndTipo(
-                                nota.getExpediente(),
-                                nota.getTipo());
-
-                nota.setNumero((int) yaExistentes + 1);
-            }
-
-            return notaRepository.save(nota);
-        }
-        
+                
         public Optional<Nota> buscarBorrador(String numeroTramite) {
             return notaRepository.findFirstByExpedienteNumeroTramiteAndEstadoDocumento(
                     numeroTramite,
@@ -282,6 +268,23 @@ escribirTexto(cs, texto, x, y, fuente, tamanio);
             lineas.add(lineaActual.toString());
         }
         return lineas;
+    }
+    
+    @Transactional
+    public Nota guardar(Nota nota) {
+        // El borrador NO recibe número. El número se asigna recién al finalizar.
+        return notaRepository.save(nota);
+    }
+
+    @Transactional
+    public Nota finalizar(Nota nota) {
+        if (nota.getNumero() == null) {
+            int anio = nota.getFecha().getYear();
+            int maximo = notaRepository.buscarMaximoNumero(nota.getTipo(), anio);
+            nota.setNumero(maximo + 1);
+        }
+        nota.setEstadoDocumento(EstadoDocumento.FINALIZADO);
+        return notaRepository.save(nota);
     }
     
    

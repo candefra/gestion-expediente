@@ -195,10 +195,7 @@ public class NotaController {
                     "Para finalizar la nota debe completar: " + lista + ".");
         }
         
-        nota.setEstadoDocumento(EstadoDocumento.FINALIZADO);
-
-        Nota notaGuardada = notaService.guardar(nota);
-
+        Nota notaGuardada = notaService.finalizar(nota);
         expedienteService.finalizarExpediente(numeroTramite, empleado);
 
         byte[] archivo = notaService.generarPdf(notaGuardada);
