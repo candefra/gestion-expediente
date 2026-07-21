@@ -56,6 +56,10 @@ public class NotaService {
         this.notaRepository = notaRepository;
     }
     
+    public boolean existe(Long notaId) {
+        return notaRepository.existsById(notaId);
+    }
+    
                 
         public Optional<Nota> buscarBorrador(String numeroTramite) {
             return notaRepository.findFirstByExpedienteNumeroTramiteAndEstadoDocumento(

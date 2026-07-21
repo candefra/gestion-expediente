@@ -59,6 +59,7 @@
 </head>
 <body class="bg-light">
 
+		
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
     <div class="container-fluid px-4">
         <span class="navbar-brand fw-bold">
@@ -209,6 +210,11 @@
     </div>
 
 </div>
+
+<script th:if="${param.notaFinalizada != null}" th:inline="javascript">
+    var notaId = /*[[${param.notaFinalizada[0]}]]*/ 0;
+    window.open('/notas/' + notaId + '/pdf', '_blank');
+</script>
 
 </body>
 </html>

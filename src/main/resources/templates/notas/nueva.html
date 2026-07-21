@@ -94,7 +94,7 @@
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
                         <label class="form-label">Tipo</label>
-						<select name="tipo" class="form-select" required>
+						<select name="tipo" class="form-select" >
 						    <option value="">Elegir...</option>
 						    <option th:each="t : ${tipos}"
 						            th:value="${t}"
@@ -109,7 +109,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Expediente</label>
-                        <select name="numeroTramite" class="form-select" required>
+                        <select name="numeroTramite" class="form-select" >
                             <option value="">Elegir...</option>
                             <option th:each="exp : ${expedientes}"
                                     th:value="${exp.numeroTramite}"
@@ -123,12 +123,12 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Fecha</label>
-						<input type="date" name="fecha" class="form-control" required
+						<input type="date" name="fecha" class="form-control" 
 						       th:value="${nota.fecha != null ? nota.fecha : fechaHoy}">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Generada por</label>
-						<select name="empleadoId" class="form-select" required>
+						<select name="empleadoId" class="form-select" >
 						    <option value="">Elegir...</option>
 
 						    <option th:each="emp : ${empleados}"
@@ -188,38 +188,23 @@
                 <div class="mb-4">
 					<label class="form-label">Cuerpo de la nota</label>
 
-					<textarea name="cuerpo" class="form-control" rows="8" required th:text="${nota.cuerpo}"></textarea>
+					<textarea name="cuerpo" class="form-control" rows="8"  th:text="${nota.cuerpo}"></textarea>
                 </div>
+				<!-- Agrega un hidden con la URL de destino -->
+				    <input type="hidden" name="retorno" value="/expedientes">
+				<div class="d-flex gap-2">
+				        <!-- Botón Guardar: redirige a /notas/retornar -->
+				        <button type="submit" name="accion" value="guardar" class="btn btn-primary">
+				            Guardar
+				        </button>
 
-                <div class="d-flex gap-2">
-					<button 
-					type="submit"
-					name="accion"
-					value="guardar"
-					class="btn btn-primary"
-					formnovalidate>
-					Guardar
+				        <button type="submit" name="accion" value="finalizar" class="btn btn-success"
+						        onclick="marcarRequeridos()">
+						    Finalizar
+						</button>
 
-					</button>
-					
-					<button
-					type="submit"
-					name="accion"
-					value="finalizar"
-					class="btn btn-success">
-
-					Finalizar
-
-					</button>
-					
-					<a href="/expedientes"
-					class="btn btn-secondary">
-
-					Cancelar
-
-					</a>
-					
-                </div>
+				        <a href="/expedientes" class="btn btn-secondary">Cancelar</a>
+				    </div>
             </form>
         </div>
     </div>
@@ -234,5 +219,20 @@ document.getElementById('selectorFrecuente').addEventListener('change', function
     document.getElementById('campoNombre').value = opcion.getAttribute('data-nombre') || '';
 });
 </script>
+
+<script>
+	function marcarRequeridos() {
+	    document.querySelector('select[name="tipo"]').required = true;
+	    document.querySelector('select[name="numeroTramite"]').required = true;
+	    document.querySelector('input[name="fecha"]').required = true;
+	    document.querySelector('select[name="empleadoId"]').required = true;
+	    document.querySelector('textarea[name="cuerpo"]').required = true;
+	    document.querySelector('#campoCargo').required = true;
+	    document.querySelector('#campoArea').required = true;
+	    document.querySelector('#campoNombre').required = true;
+	}
+
+</script>
+
 </body>
 </html>
