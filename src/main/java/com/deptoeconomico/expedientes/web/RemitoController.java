@@ -72,25 +72,24 @@ public class RemitoController {
             expediente.setCaratula(fila.getCaratula());
             expediente.setIniciador(fila.getIniciador());
             expediente.setOrigen(fila.getOrigen());
-            expediente.setEmpleadoAsignado(empleadoService.buscarPorId(fila.getEmpleado()));
+
+            // empleado es opcional: solo buscamos si vino un id
+            if (fila.getEmpleado() != null) {
+                expediente.setEmpleadoAsignado(empleadoService.buscarPorId(fila.getEmpleado()));
+            }
 
             DetalleRemito detalle = new DetalleRemito();
             detalle.setExpediente(expediente);
             detalle.setFojas(fila.getFojas());
             detalles.add(detalle);
-        }                 
-            long totalLlenas = formulario.getDetalles().stream()
-                    .filter(f -> f.getNumeroTramite() != null && !f.getNumeroTramite().isBlank())
-                    .count();
+        }
+
+        long totalLlenas = formulario.getDetalles().stream()
+                .filter(f -> f.getNumeroTramite() != null && !f.getNumeroTramite().isBlank())
+                .count();
 
         if (totalLlenas == 0) {
             throw new IllegalArgumentException("No ingresaste ningún expediente válido.");
-        }
-
-        if (!formulario.getDetalles().isEmpty() && totalLlenas < formulario.getDetalles().size()) {
-            // Podés agregar un log o mensaje en el template
-            System.out.println("Se procesaron " + totalLlenas + " de " + 
-                formulario.getDetalles().size() + " expedientes.");
         }
 
         remitoService.registrarRemito(remito, detalles);

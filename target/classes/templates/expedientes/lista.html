@@ -4,43 +4,76 @@
     <meta charset="UTF-8">
     <title>Expedientes</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f4f5f7;
+        body{
+            background:#edf2f7;
+            font-family:'Segoe UI',sans-serif;
         }
-        .card-filtros {
-            border-radius: 10px;
-            border: 1px solid #e3e5e8;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        .navbar{
+            border-bottom:4px solid #0b5ed7;
         }
-        table.table-expedientes {
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #e3e5e8;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        .card{
+            border:none;
+            border-radius:15px;
+            box-shadow:0 6px 18px rgba(0,0,0,.08);
         }
-        table.table-expedientes thead th {
-            font-size: .78rem;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-            font-weight: 600;
-            vertical-align: middle;
+        .card-filtros{
+            border-radius:15px;
         }
-        table.table-expedientes td {
-            font-size: .92rem;
+        .table-expedientes{
+            border-radius:15px;
+            overflow:hidden;
+            background:white;
+            box-shadow:0 6px 18px rgba(0,0,0,.08);
         }
-        .badge-estado {
-            font-weight: 500;
-            font-size: .78rem;
-            padding: .4em .65em;
+        .table-expedientes thead{
+            background:#0d6efd;
+            color:white;
+        }
+        .table-expedientes th{
+            border:none;
+            font-size:.80rem;
+            text-transform:uppercase;
+            letter-spacing:.05rem;
+        }
+        .table-expedientes td{
+            padding:15px;
+            vertical-align:middle;
+        }
+        .table tbody tr:hover{
+            background:#eef5ff;
+        }
+        .badge{
+            padding:8px 15px;
+            border-radius:20px;
+        }
+        .btn{
+            border-radius:10px;
+        }
+        .form-control,
+        .form-select{
+            border-radius:10px;
         }
     </style>
 </head>
-<body>
+<body class="bg-light">
 
-<div class="container py-5" style="max-width: 1100px;">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+    <div class="container-fluid px-4">
+        <span class="navbar-brand fw-bold">
+            <i class="bi bi-folder2-open"></i>
+            SIGEC
+        </span>
+        <div class="ms-auto text-white">
+            Departamento Económico
+        </div>
+    </div>
+</nav>
 
-    <div class="mb-4">
+<div class="container py-4">
+
+    <div class="mb-3">
         <a href="/index" class="text-decoration-none text-muted small">&larr; Volver al inicio</a>
     </div>
 
@@ -52,16 +85,15 @@
     <!-- Buscador y Filtros -->
     <div class="card card-filtros p-3 mb-4">
         <div class="row g-3 align-items-end">
-            <!-- Buscador por texto (debe ir dentro de un formulario para que funcione) -->
             <div class="col-md-6">
                 <form th:action="@{/expedientes}" method="get" class="d-flex gap-2">
                     <input type="text" name="search" class="form-control form-control-sm"
-                           placeholder="Buscar por número o carátula..." th:value="${param.search}">
+                           placeholder="Buscar por número o carátula..."
+                           th:value="${param.search != null ? param.search[0] : ''}">
                     <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
                 </form>
             </div>
 
-            <!-- Filtro por empleado -->
             <div class="col-md-6">
                 <form th:action="@{/expedientes}" method="get" class="d-flex align-items-center justify-content-md-end gap-2">
                     <label class="form-label mb-0 text-nowrap">Ver expedientes de:</label>
@@ -81,7 +113,7 @@
     <!-- Tabla de Expedientes -->
     <div class="table-responsive">
         <table class="table table-sm table-expedientes bg-white align-middle mb-0">
-            <thead class="table-dark">
+            <thead>
             <tr>
                 <th>N° Trámite</th>
                 <th>Carátula</th>
@@ -92,79 +124,83 @@
             </tr>
             </thead>
             <tbody>
-                <!-- Iteración sobre los expedientes -->
                 <tr th:each="exp : ${expedientes}">
                     <td th:text="${exp.numeroTramite}" class="fw-medium"></td>
                     <td th:text="${exp.caratula ?: '—'}"></td>
-					<td>
-					    <span th:if="${exp.empleadoAsignado != null}" th:text="${exp.empleadoAsignado.nombre}"></span>
-
-					    <span th:if="${exp.empleadoAsignado == null and exp.estado != null and exp.estado.name() == 'FINALIZADO'}"
-					          class="text-muted">Sin asignar</span>
-
-					    <form th:if="${exp.empleadoAsignado == null and (exp.estado == null or exp.estado.name() != 'FINALIZADO')}"
-					          th:action="@{/expedientes/{n}/asignar(n=${exp.numeroTramite})}"
-					          method="post" class="d-flex gap-1">
-					        <select name="empleadoId" class="form-select form-select-sm" required>
-					            <option value="">Asignar a...</option>
-					            <option th:each="emp : ${empleados}"
-					                    th:value="${emp.id}"
-					                    th:text="${emp.nombre}">
-					            </option>
-					        </select>
-					        <button type="submit" class="btn btn-outline-primary btn-sm">Asignar</button>
-					    </form>
-					</td>
                     <td>
-						<span class="badge badge-estado"
-						th:classappend="${exp.estado != null and exp.estado.name() == 'FINALIZADO'} ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis'"
-						th:text="${exp.estado != null ? exp.estado.etiqueta : 'Sin estado'}"
-						</span>
+                        <span th:if="${exp.empleadoAsignado != null}" th:text="${exp.empleadoAsignado.nombre}"></span>
+
+                        <span th:if="${exp.empleadoAsignado == null and exp.estado != null and exp.estado.name() == 'FINALIZADO'}"
+                              class="text-muted">Sin asignar</span>
+
+                        <form th:if="${exp.empleadoAsignado == null and (exp.estado == null or exp.estado.name() != 'FINALIZADO')}"
+                              th:action="@{/expedientes/{n}/asignar(n=${exp.numeroTramite})}"
+                              method="post" class="d-flex gap-1">
+                            <select name="empleadoId" class="form-select form-select-sm" required>
+                                <option value="">Asignar a...</option>
+                                <option th:each="emp : ${empleados}"
+                                        th:value="${emp.id}"
+                                        th:text="${emp.nombre}">
+                                </option>
+                            </select>
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Asignar</button>
+                        </form>
+                    </td>
+                    <td>
+                        <span class="badge badge-estado"
+                              th:classappend="${exp.estado != null and exp.estado.name() == 'FINALIZADO'} ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis'"
+                              th:text="${exp.estado != null ? exp.estado.etiqueta : 'Sin estado'}">
+                        </span>
                     </td>
                     <td th:text="${#temporals.format(exp.fechaIngreso, 'dd/MM/yyyy')}"></td>
                     <td class="text-center">
                         <div class="d-flex gap-1 justify-content-center">
 
-                            <!-- Expediente finalizado: solo se consulta el historial, no se edita mas -->
+                            <!-- Expediente finalizado: solo se consulta el historial, no se edita más -->
                             <th:block th:if="${exp.estado != null and exp.estado.name() == 'FINALIZADO'}">
                                 <a th:href="@{/notas/expediente/{numero}(numero=${exp.numeroTramite})}"
                                    class="btn btn-outline-secondary btn-sm">
-                                    Ver historial
+                                   <i class="bi bi-clock-history"></i>
+                                   Historial
                                 </a>
                             </th:block>
 
-                            <!-- Expediente en tramite: se puede seguir respondiendo y reasignar -->
+                            <!-- Expediente en trámite: se puede seguir respondiendo y reasignar -->
                             <th:block th:unless="${exp.estado != null and exp.estado.name() == 'FINALIZADO'}">
-                                <a th:href="@{/notas/nueva(numeroTramite=${exp.numeroTramite})}"
-                                   class="btn btn-success btn-sm">
-                                    Responder
-                                </a>
+								<a th:href="@{/notas/nueva(numeroTramite=${exp.numeroTramite})}"
+								   class="btn btn-success btn-sm">
+								    <i class="bi bi-chat-left-text"></i>
+								    Responder
+								</a>
 
                                 <a th:if="${tieneNotas[exp.numeroTramite]}"
                                    th:href="@{/notas/expediente/{numero}(numero=${exp.numeroTramite})}"
                                    class="btn btn-outline-primary btn-sm">
-                                    Ver notas
+                                   <i class="bi bi-file-earmark-text"></i>
+                                   Ver notas
                                 </a>
 
-								<form th:if="${tieneNotas[exp.numeroTramite]}"
-								      th:action="@{/expedientes/{n}/reasignar(n=${exp.numeroTramite})}"
-								      method="post" class="d-flex gap-1">
-								    <select name="empleadoId" class="form-select form-select-sm" required>
-								        <option value="">Asignar a...</option>
-								        <option th:each="emp : ${empleados}"
-								                th:value="${emp.id}"
-								                th:text="${emp.nombre}">
-								        </option>
-								    </select>
-								    <button type="submit" class="btn btn-outline-warning btn-sm">Reasignar</button>
-								</form>
+                                <form th:if="${tieneNotas[exp.numeroTramite]}"
+                                      th:action="@{/expedientes/{n}/reasignar(n=${exp.numeroTramite})}"
+                                      method="post" class="d-flex gap-1">
+                                    <select name="empleadoId" class="form-select form-select-sm" required>
+                                        <option value="">Asignar a...</option>
+                                        <option th:each="emp : ${empleados}"
+                                                th:value="${emp.id}"
+                                                th:text="${emp.nombre}">
+                                        </option>
+                                    </select>
+                                    <button type="submit" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                        Reasignar
+                                    </button>
+                                </form>
                             </th:block>
 
                         </div>
                     </td>
                 </tr>
 
-                <!-- Mensaje de lista vacía -->
                 <tr th:if="${expedientes == null || expedientes.isEmpty()}">
                     <td colspan="6" class="text-muted text-center py-4">No hay expedientes para mostrar.</td>
                 </tr>
@@ -173,5 +209,6 @@
     </div>
 
 </div>
+
 </body>
 </html>

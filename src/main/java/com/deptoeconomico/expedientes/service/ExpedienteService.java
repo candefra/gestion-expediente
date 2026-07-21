@@ -89,5 +89,22 @@ public class ExpedienteService {
         return expedienteRepository.save(expediente);
     }
     
+    public List<Expediente> buscarConFiltros(String search, Long empleadoId) {
+        List<Expediente> resultado;
 
+        if (search != null && !search.isBlank()) {
+            resultado = expedienteRepository
+                .findByNumeroTramiteContainingIgnoreCaseOrCaratulaContainingIgnoreCaseOrderByFechaIngresoDesc(
+                    search, search);
+        } else if (empleadoId != null) {
+            Empleado empleado = empleadoRepository.findById(empleadoId)
+                    .orElseThrow(() -> new IllegalArgumentException("No existe el empleado con id " + empleadoId));
+            resultado = expedienteRepository.findByEmpleadoAsignadoOrderByFechaIngresoDesc(empleado);
+        } else {
+            resultado = expedienteRepository.findAllByOrderByFechaIngresoDesc();
+        }
+
+        return resultado;
+    }
+    
 }

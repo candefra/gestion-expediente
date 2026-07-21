@@ -23,6 +23,12 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, String> 
     boolean existsByNumeroTramite(String numeroTramite); // ← AGREGAR ESTO
 
     List<Expediente> findByEstado(EstadoExpediente estado);
+    
+    List<Expediente> findAllByOrderByFechaIngresoDesc();
+    List<Expediente> findByEmpleadoAsignadoOrderByFechaIngresoDesc(Empleado empleado);
+    List<Expediente> findByNumeroTramiteContainingIgnoreCaseOrCaratulaContainingIgnoreCaseOrderByFechaIngresoDesc(
+            String numeroTramite, String caratula);
+  
     }
 
 

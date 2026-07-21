@@ -45,25 +45,26 @@ public class ExpedienteController {
      */
     
     @GetMapping
-    public String listar(@RequestParam(required = false) Long empleadoId, Model model) {
-        List<Expediente> expedientes = (empleadoId != null)
-                ? expedienteService.listarPorEmpleado(empleadoId)
-                : expedienteService.listarTodos();
+    public String listar(
+            @RequestParam(required = false) Long empleadoId,
+            @RequestParam(required = false) String search,
+            Model model) {
+
+        List<Expediente> expedientes = expedienteService.buscarConFiltros(search, empleadoId);
 
         model.addAttribute("expedientes", expedientes);
         model.addAttribute("empleados", empleadoService.listarTodos());
         model.addAttribute("empleadoIdSeleccionado", empleadoId);
-        Map<String, Boolean> tieneNotas = new HashMap<>();
 
+        Map<String, Boolean> tieneNotas = new HashMap<>();
         for (Expediente exp : expedientes) {
             tieneNotas.put(
                 exp.getNumeroTramite(),
                 notaService.tieneNotas(exp.getNumeroTramite())
             );
         }
-
         model.addAttribute("tieneNotas", tieneNotas);
-        
+
         return "expedientes/lista";
     }
 

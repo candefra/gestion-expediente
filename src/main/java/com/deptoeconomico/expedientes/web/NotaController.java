@@ -119,7 +119,7 @@ public class NotaController {
 
     @PostMapping
     public Object generar(
-    		 @RequestParam(required = false) Long id,
+            @RequestParam(required = false) Long id,
             @RequestParam(required = false) String numeroTramite,
             @RequestParam(required = false) Long empleadoId,
             @RequestParam(required = false) TipoNota tipo,
@@ -129,26 +129,26 @@ public class NotaController {
             @RequestParam(required = false) String area,
             @RequestParam(required = false) String nombreDestinatario,
             @RequestParam(required = false) String cuerpo,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha)
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            Model model)
             throws IOException {
 
-    	Expediente expediente = null;
-    	if (numeroTramite != null && !numeroTramite.isBlank()) {
-    	    expediente = expedienteService.buscarPorNumero(numeroTramite);
-    	}
+        Expediente expediente = null;
+        if (numeroTramite != null && !numeroTramite.isBlank()) {
+            expediente = expedienteService.buscarPorNumero(numeroTramite);
+        }
 
-    	Empleado empleado = null;
-    	if (empleadoId != null) {
-    	    empleado = empleadoService.buscarPorId(empleadoId);
-    	}
+        Empleado empleado = null;
+        if (empleadoId != null) {
+            empleado = empleadoService.buscarPorId(empleadoId);
+        }
 
-    	Nota nota;
-
-    	if (id != null) {
-    	    nota = notaService.buscarPorId(id);
-    	} else {
-    	    nota = new Nota();
-    	}
+        Nota nota;
+        if (id != null) {
+            nota = notaService.buscarPorId(id);
+        } else {
+            nota = new Nota();
+        }
         nota.setExpediente(expediente);
         nota.setEmpleado(empleado);
         nota.setTipo(tipo);
@@ -161,12 +161,19 @@ public class NotaController {
 
         // -------- GUARDAR ----------
         if ("guardar".equals(accion)) {
-
             nota.setEstadoDocumento(EstadoDocumento.BORRADOR);
+            Nota notaGuardada = notaService.guardar(nota);
 
-            notaService.guardar(nota);
+            model.addAttribute("expedientes", expedienteService.listarTodos());
+            model.addAttribute("empleados", empleadoService.listarTodos());
+            model.addAttribute("tipos", TipoNota.values());
+            model.addAttribute("destinatariosFrecuentes", destinatarioFrecuenteService.listarTodos());
+            model.addAttribute("numeroTramiteSeleccionado", numeroTramite);
+            model.addAttribute("fechaHoy", LocalDate.now());
+            model.addAttribute("nota", notaGuardada);
+            model.addAttribute("mensajeGuardado", "Borrador guardado.");
 
-            return "redirect:/notas";
+            return "notas/nueva";
         }
  
      // -------- FINALIZAR ----------

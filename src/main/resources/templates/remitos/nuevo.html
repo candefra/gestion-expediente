@@ -3,21 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <title>Nuevo remito</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container py-4">
-		
-	<div class="mb-4">
-	     <a href="/index" class="text-decoration-none text-muted small">&larr; Volver al inicio</a>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+		    <style>
+		        body{
+		            background:#edf2f7;
+		            font-family:'Segoe UI',sans-serif;
+		        }
+		        .navbar{
+		            border-bottom:4px solid #0b5ed7;
+		        }
+		        .card{
+		            border:none;
+		            border-radius:15px;
+		            box-shadow:0 6px 18px rgba(0,0,0,.08);
+		        }
+		        .card-filtros{
+		            border-radius:15px;
+		        }
+		        .table-expedientes{
+		            border-radius:15px;
+		            overflow:hidden;
+		            background:white;
+		            box-shadow:0 6px 18px rgba(0,0,0,.08);
+		        }
+		        .table-expedientes thead{
+		            background:#0d6efd;
+		            color:white;
+		        }
+		        .table-expedientes th{
+		            border:none;
+		            font-size:.80rem;
+		            text-transform:uppercase;
+		            letter-spacing:.05rem;
+		        }
+		        .table-expedientes td{
+		            padding:15px;
+		            vertical-align:middle;
+		        }
+		        .table tbody tr:hover{
+		            background:#eef5ff;
+		        }
+		        .badge{
+		            padding:8px 15px;
+		            border-radius:20px;
+		        }
+		        .btn{
+		            border-radius:10px;
+		        }
+		        .form-control,
+		        .form-select{
+		            border-radius:10px;
+		        }
+		    </style>
+		</head>
+		<body class="bg-light">
 
-	     </p>
-	 </div>	
+		<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+		    <div class="container-fluid px-4">
+		        <span class="navbar-brand fw-bold">
+		            <i class="bi bi-folder2-open"></i>
+		            SIGEC
+		        </span>
+		        <div class="ms-auto text-white">
+		            Departamento Económico
+		        </div>
+		    </div>
+		</nav>
+
+		<div class="container py-4">
+
+		    <div class="mb-3">
+		        <a href="/index" class="text-decoration-none text-muted small">&larr; Volver al inicio</a>
+		    </div>
+
+		    <div class="text-center mb-4">
+		        <h1 class="h3 mb-1">Lista de Remitos</h1>
+		        <h4 class="text-secondary fw-normal">Departamento Económico</h4>
+		    </div>
+
+<div class="container py-4">
 
 
     <h1 class="h4 mb-3">Cargar remito nuevo</h1>
 
-    <form th:action="@{/remitos}" th:object="${remitoFormulario}" method="post">
+    <form th:action="@{/remitos}" th:object="${remitoFormulario}" method="post" id="form-remito">
 
         <div class="row g-2 mb-4">
             <div class="col-auto">
@@ -41,17 +111,14 @@
         <h2 class="h6">Expedientes incluidos</h2>
         <p class="text-muted small">Completá una fila por cada expediente del remito. Las filas que dejes vacías se ignoran.</p>
 
-        <table class="table table-sm table-bordered bg-white">
+        <table class="table table-sm table-bordered bg-white" id="tabla-detalles">
             <thead class="table-light">
                 <tr>
                     <th>N° trámite</th>
                     <th>N° único</th>
                     <th>Tipo</th>
-					<th>Asignado a</th>				
-                    <!-- <th>Carátula</th>
-                    <th>Iniciador</th>
-                    <th>Origen</th>
-                    <th>Fojas</th> !-->
+                    <th>Asignado a</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -59,41 +126,61 @@
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].numeroTramite}" class="form-control form-control-sm"></td>
                     <td><input type="text" th:field="*{detalles[__${stat.index}__].numeroUnico}" class="form-control form-control-sm"></td>
                     <td>
-						<select th:field="*{detalles[__${stat.index}__].tipo}"
-						        class="form-select form-select-sm"
-						        required>
-						    <option value="">--</option>
-						    <option th:each="t : ${tipos}"
-						            th:value="${t}"
-						            th:text="${t.etiqueta}">
-						    </option>
-						</select>
+                        <select th:field="*{detalles[__${stat.index}__].tipo}" class="form-select form-select-sm">
+                            <option value="">--</option>
+                            <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.etiqueta}"></option>
+                        </select>
                     </td>
-					<td>
-						<select th:field="*{detalles[__${stat.index}__].empleado}"
-						        class="form-select form-select-sm"
-						        required>
-						    <option value="">--</option>
-						    <option th:each="t : ${empleados}"
-						            th:value="${t.id}"
-						            th:text="${t.nombre}">
-						    </option>
-						</select>
-					</td>
-					
-                    <!-- <td><input type="text" th:field="*{detalles[__${stat.index}__].caratula}" class="form-control form-control-sm"></td>
-                    <td><input type="text" th:field="*{detalles[__${stat.index}__].iniciador}" class="form-control form-control-sm"></td>
-                    <td><input type="text" th:field="*{detalles[__${stat.index}__].origen}" class="form-control form-control-sm"></td>
-                    <td><input type="number" th:field="*{detalles[__${stat.index}__].fojas}" class="form-control form-control-sm" style="width:70px"></td>
-					!-->
-					 </tr>
+                    <td>
+                        <select th:field="*{detalles[__${stat.index}__].empleado}" class="form-select form-select-sm">
+                            <option value="">Sin asignar</option>
+                            <option th:each="t : ${empleados}" th:value="${t.id}" th:text="${t.nombre}"></option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-quitar-fila">✕</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
+
+        <button type="button" id="btn-agregar-fila" class="btn btn-outline-secondary btn-sm mb-3">+ Agregar expediente</button>
+        <br>
 
         <button type="submit" class="btn btn-primary">Guardar remito</button>
         <a href="/remitos" class="btn btn-outline-secondary">Cancelar</a>
     </form>
 
 </div>
+
+<script th:inline="javascript">
+    const tipos = /*[[${tipos}]]*/ [];
+    const empleados = /*[[${empleados}]]*/ [];
+
+    function filaHtml(index) {
+        const opcionesTipo = tipos.map(t => `<option value="${t.name}">${t.etiqueta}</option>`).join('');
+        const opcionesEmpleado = empleados.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+        return `<tr>
+            <td><input type="text" name="detalles[${index}].numeroTramite" class="form-control form-control-sm"></td>
+            <td><input type="text" name="detalles[${index}].numeroUnico" class="form-control form-control-sm"></td>
+            <td><select name="detalles[${index}].tipo" class="form-select form-select-sm"><option value="">--</option>${opcionesTipo}</select></td>
+            <td><select name="detalles[${index}].empleado" class="form-select form-select-sm"><option value="">Sin asignar</option>${opcionesEmpleado}</select></td>
+            <td><button type="button" class="btn btn-outline-danger btn-sm btn-quitar-fila">✕</button></td>
+        </tr>`;
+    }
+
+    document.getElementById('btn-agregar-fila').addEventListener('click', function () {
+        const tbody = document.querySelector('#tabla-detalles tbody');
+        const index = tbody.querySelectorAll('tr').length;
+        tbody.insertAdjacentHTML('beforeend', filaHtml(index));
+    });
+
+    document.querySelector('#tabla-detalles tbody').addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-quitar-fila')) {
+            e.target.closest('tr').remove();
+        }
+    });
+</script>
+
 </body>
 </html>
