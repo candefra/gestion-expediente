@@ -108,7 +108,12 @@ public class NotaController {
             if (borrador.isPresent()) {
                 model.addAttribute("nota", borrador.get());
             } else {
-                model.addAttribute("nota", new Nota());
+                Nota nota = new Nota();
+                Expediente expediente = expedienteService.buscarPorNumero(numeroTramite);
+                if (expediente.getEmpleadoAsignado() != null) {
+                    nota.setEmpleado(expediente.getEmpleadoAsignado());
+                }
+                model.addAttribute("nota", nota);
             }
         } else {
             model.addAttribute("nota", new Nota());
@@ -194,7 +199,7 @@ public class NotaController {
 
         Nota notaGuardada = notaService.guardar(nota);
 
-        expedienteService.finalizarExpediente(numeroTramite);
+        expedienteService.finalizarExpediente(numeroTramite, empleado);
 
         byte[] archivo = notaService.generarPdf(notaGuardada);
 

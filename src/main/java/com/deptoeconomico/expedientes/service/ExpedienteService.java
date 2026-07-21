@@ -65,14 +65,15 @@ public class ExpedienteService {
         return expedienteRepository.save(expediente);
     }
     
+   
     @Transactional
-    public void finalizarExpediente(String numeroTramite) {
-
+    public void finalizarExpediente(String numeroTramite, Empleado empleadoQueResponde) {
         Expediente expediente = buscarPorNumero(numeroTramite);
-
         expediente.setEstado(EstadoExpediente.FINALIZADO);
+        if (empleadoQueResponde != null) {
+            expediente.setEmpleadoAsignado(empleadoQueResponde);
+        }
         expedienteRepository.save(expediente);
-
     }
     
     @Transactional
